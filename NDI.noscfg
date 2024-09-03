@@ -1,0 +1,16 @@
+{
+    "info": {
+        "id": {
+            "name": "nos.ndi",
+            "version": "0.1.0"
+        },
+        "display_name": "NDI",
+        "description": "",
+        "dependencies": []
+    },
+    "binary_path": "Binaries/nosNDI",
+    "node_definitions": [],
+    "defaults": [],
+    "custom_types": [],
+    "associated_nodes": []
+}
