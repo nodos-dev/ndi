@@ -1,0 +1,30 @@
+{
+	"nodes": [
+		{
+			"class_name": "NdiSelectSource",
+			"display_name": "NDI Select Source",
+			"contents_type": "Job",
+			"always_execute": true,
+			"description": "",
+			"pins": [
+				{
+					"name": "SourceName",
+					"display_name": "Source name",
+					"type_name": "string",
+					"show_as": "PROPERTY",
+					"can_show_as": "PROPERTY_ONLY",
+					"visualizer": {
+						"type": "COMBO_BOX",
+						"name": "ndiSources"
+					}
+				},
+				{
+					"name": "Selected",
+					"type_name": "string",
+					"show_as": "OUTPUT_PIN",
+					"can_show_as": "OUTPUT_PIN_ONLY"
+				}
+			]
+		}
+	]
+}

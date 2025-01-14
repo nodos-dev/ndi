@@ -1,0 +1,39 @@
+{
+	"nodes": [
+		{
+			"class_name": "NdiReceiveFrame",
+			"display_name": "NDI Receive Frame",
+			"contents_type": "Job",
+			"always_execute": true,
+			"description": "",
+			"pins": [
+				{
+					"name": "TextureFormat",
+					"display_name": "Texture format",
+					"type_name": "nos.sys.vulkan.Format",
+					"show_as": "OUTPUT_PIN",
+					"can_show_as": "OUTPUT_PIN_ONLY"
+				},
+				{
+					"name": "Size",
+					"type_name": "nos.fb.vec2u",
+					"show_as": "OUTPUT_PIN",
+					"can_show_as": "OUTPUT_PIN_ONLY"
+				},
+				{
+					"name": "FrameBuffer",
+					"display_name": "Frame Buffer",
+					"type_name": "nos.sys.vulkan.Buffer",
+					"show_as": "OUTPUT_PIN",
+					"can_show_as": "OUTPUT_PIN_ONLY"
+				},
+				{
+					"name": "Receiver",
+					"type_name": "nos.ndi.Receiver",
+					"show_as": "INPUT_PIN",
+					"can_show_as": "INPUT_PIN_ONLY"
+				}
+			]
+		}
+	]
+}

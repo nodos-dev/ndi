@@ -1,0 +1,41 @@
+{
+	"nodes": [
+		{
+			"class_name": "NdiGetReceiver",
+			"display_name": "NDI Get Receiver",
+			"contents_type": "Job",
+			"always_execute": true,
+			"description": "",
+			"pins": [
+				{
+					"name": "SourceName",
+					"display_name": "Source name",
+					"type_name": "string",
+					"show_as": "INPUT_PIN",
+					"can_show_as": "INPUT_PIN_OR_PROPERTY"
+				},
+				{
+					"name": "Framesync",
+					"type_name": "bool",
+					"show_as": "PROPERTY",
+					"can_show_as": "PROPERTY_ONLY",
+					"data": true
+				},
+				{
+					"name": "ColorFormat",
+					"display_name": "Color format",
+					"type_name": "nos.ndi.ColorFormat",
+					"show_as": "PROPERTY",
+					"can_show_as": "INPUT_PIN_OR_PROPERTY",
+					"data": "RGBX_RGBA"
+				},
+				{
+					"name": "Receiver",
+					"type_name": "nos.ndi.Receiver",
+					"show_as": "OUTPUT_PIN",
+					"can_show_as": "OUTPUT_PIN_ONLY"
+				}
+			]
+		}
+	]
+}

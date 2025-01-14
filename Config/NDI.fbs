@@ -1,0 +1,27 @@
+namespace nos.ndi;
+
+enum Framerate : uint
+{
+	_60_00,
+	_59_94,
+	_50_00,
+	_30_00,
+	_29_97,
+	_24_00
+}
+
+table Receiver {
+    recv_instance: uint64;
+    framesync_instance: uint64;
+    name: string;
+}
+
+enum ColorFormat : uint
+{
+	BGRX_BGRA,
+	UYVY_BGRA,
+	RGBX_RGBA,
+	UYVY_RGBA,
+	fastest,
+	best
+}
