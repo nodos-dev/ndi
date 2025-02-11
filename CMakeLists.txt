@@ -1,10 +1,11 @@
+add_compile_definitions(NOS_DISABLE_DEPRECATED)
 set(USE_NOS_SDK_VERSION "1.3.0")
 nos_find_sdk(${USE_NOS_SDK_VERSION} NOS_PLUGIN_SDK_TARGET NOS_SUBSYSTEM_SDK_TARGET NOS_SDK_DIR)
 if (NOT DEFINED NOS_SDK_DIR)
     message(FATAL_ERROR "Nodos SDK with version ${USE_NOS_SDK_VERSION} not found, please either install it or choose different version")
 endif()
 
-set(MODULE_DEPENDENCIES "nos.sys.vulkan-5.25") # List your dependencies here: "module_name-version"
+set(MODULE_DEPENDENCIES "nos.sys.vulkan-6.0") # List your dependencies here: "module_name-version"
 set(dep_idx 0)
 foreach(module_name_version ${MODULE_DEPENDENCIES})
     string(REPLACE "-" ";" module_name_version ${module_name_version})

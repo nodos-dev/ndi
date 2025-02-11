@@ -16,7 +16,7 @@ static NOS_REGISTER_NAME(Size);
 static NOS_REGISTER_NAME(TextureFormat);
 
 struct NdiReceiveFrameContext : public NodeContext {
-	nosResourceShareInfo FrameBuffer = {};
+	std::optional<vkss::Resource> FrameBuffer = {};
 	uint8_t* FrameBufferPtr = nullptr;
 
 	NdiReceiveFrameContext(fb::Node const* node)
@@ -82,25 +82,25 @@ struct NdiReceiveFrameContext : public NodeContext {
 			break;
 		}
 
-		if (!FrameBuffer.Memory.Handle || FrameBuffer.Info.Buffer.Size != textureSize) {
-			if (FrameBuffer.Memory.Handle) {
-				nosVulkan->DestroyResource(&FrameBuffer);
-				FrameBuffer.Memory.Handle = 0;
+		if (!FrameBuffer || FrameBuffer->Info.Buffer.Size != textureSize) {
+			nosResourceShareInfo info{
+				.Info = nosResourceInfo{.Type = NOS_RESOURCE_TYPE_BUFFER,
+										.Buffer = {.Size = textureSize,
+												   .Usage = nosBufferUsage(NOS_BUFFER_USAGE_TRANSFER_SRC),
+												   .MemoryFlags = NOS_MEMORY_FLAGS_HOST_VISIBLE}}};
+			FrameBuffer = vkss::Resource::Create(info, "FrameBuffer");
+			if (!FrameBuffer)
+			{
+				nosEngine.LogE("Failed to create FrameBuffer.");
+				return;
 			}
-
-			FrameBuffer.Info.Type = NOS_RESOURCE_TYPE_BUFFER;
-			FrameBuffer.Info.Buffer.Usage = nosBufferUsage(NOS_BUFFER_USAGE_TRANSFER_SRC);
-			FrameBuffer.Info.Buffer.MemoryFlags = NOS_MEMORY_FLAGS_HOST_VISIBLE;
-			FrameBuffer.Info.Buffer.Size = textureSize;
-
-			nosVulkan->CreateResource(&FrameBuffer);
-			FrameBufferPtr = nosVulkan->Map(&FrameBuffer);
+			FrameBufferPtr = nosVulkan->Map(&*FrameBuffer);
 		}
 
-		if (FrameBuffer.Memory.Handle) {
+		if (FrameBuffer) {
 			memcpy(FrameBufferPtr, frame.p_data, 4 * frame.xres * frame.yres);
 			nos::fb::vec2u size(frame.xres, frame.yres);
-			SetPinValue(NSN_FrameBuffer, nos::Buffer::From(vkss::ConvertBufferInfo(FrameBuffer)));
+			SetPinValue(NSN_FrameBuffer, FrameBuffer->ToPinData());
 			SetPinValue(NSN_Size, nos::Buffer::From(size));
 			SetPinValue(NSN_TextureFormat, nos::Buffer::From(textureFormat));
 		}

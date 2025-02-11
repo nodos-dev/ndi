@@ -23,7 +23,7 @@ struct NdiSendFrameContext : public NodeContext {
 	nosVec2u Framerate = { 60000, 1000 };
 	std::string CurrentSendInstanceName;
 	NDIlib_send_instance_t SendInstance = nullptr;
-	nosResourceShareInfo IntermediateBuffer = {};
+	std::optional<vkss::Resource> IntermediateBuffer;
 
 	std::string NodeStatus;
 
@@ -42,9 +42,6 @@ struct NdiSendFrameContext : public NodeContext {
 	virtual ~NdiSendFrameContext() {
 		if (SendInstance) {
 			NDIlib_send_destroy(SendInstance);
-		}
-		if (IntermediateBuffer.Memory.Handle) {
-			nosVulkan->DestroyResource(&IntermediateBuffer);
 		}
 	}
 
@@ -109,7 +106,7 @@ struct NdiSendFrameContext : public NodeContext {
 	}
 
 
-	virtual void OnPinValueChanged(nos::Name pinName, nosUUID pinId, nosBuffer value)
+	virtual void OnPinValueChanged(nos::Name pinName, uuid const& pinId, nosBuffer value)
 	{
 		NodeContext::OnPinValueChanged(pinName, pinId, value);
 
@@ -131,7 +128,7 @@ struct NdiSendFrameContext : public NodeContext {
 	}
 
 
-	virtual void OnPinConnected(nos::Name pinName, nosUUID connectedPin) {
+	virtual void OnPinConnected(nos::Name pinName, uuid connectedPin) {
 		nosEngine.RecompilePath(NodeId);
 	}
 
@@ -140,19 +137,24 @@ struct NdiSendFrameContext : public NodeContext {
 	{
 		auto values = GetPinValues(params);
 
-		auto inputBuffer = nos::vkss::ConvertToResourceInfo(*InterpretPinValue<nos::sys::vulkan::Buffer>(values[NSN_Input]));
-		if (!inputBuffer.Memory.Handle) {
+		auto inputBuffer =
+			nos::vkss::ConvertToResourceInfo(*InterpretPinValue<nos::sys::vulkan::Buffer>(values[NSN_Input]));
+		if (!inputBuffer.Memory.Handle)
+		{
 			return NOS_RESULT_FAILED;
 		}
 
 		auto size = *InterpretPinValue<glm::uvec2>(values[NSN_Size]);
 
-		if (Name != CurrentSendInstanceName) {
-			if (SendInstance) {
+		if (Name != CurrentSendInstanceName)
+		{
+			if (SendInstance)
+			{
 				NDIlib_send_destroy(SendInstance);
 				SendInstance = nullptr;
 			}
-			if (Name.size() > 0) {
+			if (Name.size() > 0)
+			{
 				NDIlib_send_create_t sendSettings;
 				sendSettings.p_ndi_name = Name.c_str();
 				SendInstance = NDIlib_send_create(&sendSettings);
@@ -162,51 +164,42 @@ struct NdiSendFrameContext : public NodeContext {
 
 		UpdateNodeStatus();
 
-		if (!SendInstance) {
+		if (!SendInstance)
+		{
 			return NOS_RESULT_FAILED;
 		}
-		else {
-			if (!IntermediateBuffer.Memory.Handle || IntermediateBuffer.Info.Buffer.Size != inputBuffer.Info.Buffer.Size) {
-				IntermediateBuffer.Info.Type = NOS_RESOURCE_TYPE_BUFFER;
-				IntermediateBuffer.Info.Buffer.Usage = nosBufferUsage(NOS_BUFFER_USAGE_TRANSFER_DST);
-				IntermediateBuffer.Info.Buffer.MemoryFlags = nosMemoryFlags(NOS_MEMORY_FLAGS_HOST_VISIBLE | NOS_MEMORY_FLAGS_DOWNLOAD);
-				IntermediateBuffer.Info.Buffer.Size = inputBuffer.Info.Buffer.Size;
-
-				if (IntermediateBuffer.Memory.Handle) {
-					nosVulkan->DestroyResource(&IntermediateBuffer);
-					IntermediateBuffer.Memory.Handle = 0;
-				}
-				nosVulkan->CreateResource(&IntermediateBuffer);
-			}
-
-			nosCmd cmd;
-			nosVulkan->Begin("NDI Copy", &cmd);
-			nosVulkan->Copy(cmd, &inputBuffer, &IntermediateBuffer, nullptr);
-			nosGPUEvent event = {};
-			nosCmdEndParams endParams{ .ForceSubmit = true, .OutGPUEventHandle = &event };
-			nosVulkan->End(cmd, &endParams);
-			nosVulkan->WaitGpuEvent(&event, UINT64_MAX);
-
-			auto buffer = nosVulkan->Map(&IntermediateBuffer);
-
-			NDIlib_video_frame_v2_t video_frame_data;
-			video_frame_data.xres = size.x;
-			video_frame_data.yres = size.y;
-			video_frame_data.FourCC = NDIlib_FourCC_type_BGRA;
-			video_frame_data.p_data = buffer;
-			video_frame_data.frame_rate_N = Framerate.x;
-			video_frame_data.frame_rate_D = Framerate.y;
-
-			NDIlib_send_send_video_async_v2(SendInstance, &video_frame_data);
-
-			nosScheduleNodeParams schedule{
-				.NodeId = NodeId,
-				.AddScheduleCount = 1
-			};
-			nosEngine.ScheduleNode(&schedule);
-
-			return NOS_RESULT_SUCCESS;
+		if (!IntermediateBuffer || IntermediateBuffer->Info.Buffer.Size != inputBuffer.Info.Buffer.Size)
+		{
+			nosBufferInfo bufInfo = {};
+			bufInfo.Usage = nosBufferUsage(NOS_BUFFER_USAGE_TRANSFER_DST);
+			bufInfo.MemoryFlags = nosMemoryFlags(NOS_MEMORY_FLAGS_HOST_VISIBLE | NOS_MEMORY_FLAGS_DOWNLOAD);
+			bufInfo.Size = inputBuffer.Info.Buffer.Size;
+			IntermediateBuffer = vkss::Resource::Create(bufInfo, "NDI Intermediate Buffer");
 		}
+
+		nosCmd cmd = vkss::BeginCmd(NOS_NAME("NDI Copy"), NodeId);
+		nosVulkan->Copy(cmd, &inputBuffer, &*IntermediateBuffer, nullptr);
+		nosGPUEvent event = {};
+		nosCmdEndParams endParams{.ForceSubmit = true, .OutGPUEventHandle = &event};
+		nosVulkan->End(cmd, &endParams);
+		nosVulkan->WaitGpuEvent(&event, UINT64_MAX);
+
+		auto buffer = nosVulkan->Map(&*IntermediateBuffer);
+
+		NDIlib_video_frame_v2_t video_frame_data;
+		video_frame_data.xres = size.x;
+		video_frame_data.yres = size.y;
+		video_frame_data.FourCC = NDIlib_FourCC_type_BGRA;
+		video_frame_data.p_data = buffer;
+		video_frame_data.frame_rate_N = Framerate.x;
+		video_frame_data.frame_rate_D = Framerate.y;
+
+		NDIlib_send_send_video_async_v2(SendInstance, &video_frame_data);
+
+		nosScheduleNodeParams schedule{.NodeId = NodeId, .AddScheduleCount = 1};
+		nosEngine.ScheduleNode(&schedule);
+
+		return NOS_RESULT_SUCCESS;
 	}
 };
 
