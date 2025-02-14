@@ -2,45 +2,52 @@
 	"nodes": [
 		{
 			"class_name": "NdiSendFrame",
-			"display_name": "NDI Send Frame",
-			"contents_type": "Job",
-			"always_execute": true,
-			"description": "",
-			"pins": [
-				{
-					"name": "Run",
-					"type_name": "nos.exe",
-					"show_as": "INPUT_PIN",
-					"can_show_as": "INPUT_PIN_ONLY"
-				},
-				{
-					"name": "Framerate",
-					"type_name": "nos.ndi.Framerate",
-					"show_as": "PROPERTY",
-					"can_show_as": "INPUT_PIN_OR_PROPERTY",
-					"data": 0
-				},
-				{
-					"name": "Name",
-					"display_name": "Name",
-					"type_name": "string",
-					"show_as": "PROPERTY",
-					"can_show_as": "INPUT_PIN_OR_PROPERTY"
-				},
-				{
-					"name": "Size",
-					"type_name": "nos.fb.vec2u",
-					"show_as": "INPUT_PIN",
-					"can_show_as": "INPUT_PIN_OR_PROPERTY"
-				},
-				{
-					"name": "Input",
-					"display_name": "Input",
-					"type_name": "nos.sys.vulkan.Buffer",
-					"show_as": "INPUT_PIN",
-					"can_show_as": "INPUT_PIN_ONLY"
-				}
-			]
+			"menu_info": {
+				"category": "Experimental",
+				"display_name": "Ndi Send Frame"
+			},
+			"node": {
+				"class_name": "NdiSendFrame",
+				"display_name": "NDI Send Frame",
+				"contents_type": "Job",
+				"always_execute": true,
+				"description": "",
+				"pins": [
+					{
+						"name": "Run",
+						"type_name": "nos.exe",
+						"show_as": "INPUT_PIN",
+						"can_show_as": "INPUT_PIN_ONLY"
+					},
+					{
+						"name": "Framerate",
+						"type_name": "nos.ndi.Framerate",
+						"show_as": "PROPERTY",
+						"can_show_as": "INPUT_PIN_OR_PROPERTY",
+						"data": 0
+					},
+					{
+						"name": "Name",
+						"display_name": "Name",
+						"type_name": "string",
+						"show_as": "PROPERTY",
+						"can_show_as": "INPUT_PIN_OR_PROPERTY"
+					},
+					{
+						"name": "Size",
+						"type_name": "nos.fb.vec2u",
+						"show_as": "INPUT_PIN",
+						"can_show_as": "INPUT_PIN_OR_PROPERTY"
+					},
+					{
+						"name": "Input",
+						"display_name": "Input",
+						"type_name": "nos.sys.vulkan.Buffer",
+						"show_as": "INPUT_PIN",
+						"can_show_as": "INPUT_PIN_ONLY"
+					}
+				]
+			}
 		}
 	]
 }
