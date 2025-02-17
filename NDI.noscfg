@@ -8,7 +8,7 @@
     "dependencies": [
       {
         "name": "nos.sys.vulkan",
-        "version": "5.8.0"
+        "version": "6.0.0"
       }
     ],
     "display_name": "nosNDI"
@@ -26,43 +26,6 @@
     "Config/NDI.fbs"
   ],
   "binary_path": "Binaries/nosNDI",
-  "associated_nodes": [
-    {
-      "category": "Experimental",
-      "class_name": "NdiIn",
-      "display_name": "Ndi In"
-    },
-    {
-      "category": "Experimental",
-      "class_name": "NdiOut",
-      "display_name": "Ndi Out"
-    },
-    {
-      "category": "Experimental",
-      "class_name": "NdiSendFrame",
-      "display_name": "Ndi Send Frame"
-    },
-    {
-      "category": "Experimental",
-      "class_name": "NdiSelectSource",
-      "display_name": "Ndi Select Source"
-    },
-    {
-      "category": "Experimental",
-      "class_name": "NdiGetReceiver",
-      "display_name": "Ndi Get Receiver"
-    },
-    {
-      "category": "Experimental",
-      "class_name": "NdiReceiveFrame",
-      "display_name": "Ndi Receive Frame"
-    },
-    {
-      "category": "Experimental",
-      "class_name": "RGBAToBGRABuffer",
-      "display_name": "RGBA To BGRA Buffer Converter"
-    }
-  ],
   "subsystem_options": [
     {
       "subsystem": "nos.sys.vulkan",

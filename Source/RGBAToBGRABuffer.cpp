@@ -10,7 +10,7 @@ namespace nos {
 
 struct RGBA2BGRABufferNodeContext : NodeContext
 {
-	RGBA2BGRABufferNodeContext(const nosFbNode* node) : NodeContext(node)
+	RGBA2BGRABufferNodeContext(nosFbNodePtr node) : NodeContext(node)
 	{
 	}
 

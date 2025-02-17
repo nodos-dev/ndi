@@ -64,7 +64,7 @@ struct NdiGetReceiverContext : public NodeContext {
 	}
 
 
-	virtual void OnPinValueChanged(nos::Name pinName, nosUUID pinId, nosBuffer value)
+	virtual void OnPinValueChanged(nos::Name pinName, uuid const& pinId, nosBuffer value)
 	{
 		NodeContext::OnPinValueChanged(pinName, pinId, value);
 
